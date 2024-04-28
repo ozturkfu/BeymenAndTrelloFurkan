@@ -1,9 +1,14 @@
 package api;
 
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
 public class CardPage {
+
+    public CardPage() {
+
+    }
 
     private String cardId;
 
@@ -22,22 +27,25 @@ public class CardPage {
         this.cardId = cardId;
     }
 
-    public void getCardInfo(String key, String token) {
+    public String createCard(String key, String token, String listId, String cardName) {
         String baseUrl = "https://api.trello.com/1";
         Response response = RestAssured
                 .given()
                 .baseUri(baseUrl)
                 .queryParam("key", key)
                 .queryParam("token", token)
+                .queryParam("name", cardName)
+                .queryParam("idList", listId)
+                .contentType(ContentType.JSON)
                 .when()
-                .get("/cards/{cardId}", cardId);
+                .post("/cards");
 
         response.then().statusCode(200);
 
-        System.out.println("Card Info: " + response.body().asString());
+        return response.jsonPath().getString("id");
     }
 
-    public void updateCard(String key, String token, String newName) {
+    public void updateCard(String key, String token, String cardId, String newName) {
         String baseUrl = "https://api.trello.com/1";
         Response response = RestAssured
                 .given()
@@ -49,11 +57,9 @@ public class CardPage {
                 .put("/cards/{cardId}", cardId);
 
         response.then().statusCode(200);
-
-        System.out.println("Card updated: " + newName);
     }
 
-    public void deleteCard(String key, String token) {
+    public void deleteCard(String key, String token, String cardId) {
         String baseUrl = "https://api.trello.com/1";
         Response response = RestAssured
                 .given()
@@ -64,8 +70,7 @@ public class CardPage {
                 .delete("/cards/{cardId}", cardId);
 
         response.then().statusCode(200);
-
-        System.out.println("Card deleted");
     }
-
 }
+
+

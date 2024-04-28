@@ -6,10 +6,12 @@ import api.ListPage;
 import org.testng.annotations.Test;
 import utils.Config;
 
+import java.util.Random;
+
 public class TrelloTest {
 
-    private String boardId = "HXHZBlnZ";
-    private String restListId = "662e43e1d275261fad6403f3";
+    private static final String BOARD_NAME = "RestAndTest";
+    private static final String LIST_NAME = "Passed";
 
     @Test
     public void testTrelloApis() {
@@ -17,21 +19,28 @@ public class TrelloTest {
         String key = Config.getKey();
         String token = Config.getToken();
 
-        BoardPage boardPage = new BoardPage(boardId);
-        boardPage.getBoardInfo(key, token);
+        BoardPage boardPage = new BoardPage();
+        String boardId = boardPage.createBoard(key, token, BOARD_NAME);
+        System.out.println("Board created with ID: " + boardId);
 
-        ListPage[] listPages = boardPage.getLists(key, token);
+        ListPage listPage = new ListPage();
+        String listId = listPage.createList(key, token, boardId, LIST_NAME);
+        System.out.println("List created with ID: " + listId);
 
-        ListPage listPage = new ListPage(restListId);
-        // listPage.addCard(key, token, "New Project"); It can be checked by deleting the comment line.
-        listPage.getCards(key,token);
+        CardPage cardPage = new CardPage();
+        String cardId1 = cardPage.createCard(key, token, listId, "Task 1");
+        String cardId2 = cardPage.createCard(key, token, listId, "Task 2");
+        System.out.println("Cards created with IDs: " + cardId1 + ", " + cardId2);
 
-        // CardPage[] cardPages = listPage.listCards(key,token,boardId);
+        String randomCardId = new Random().nextBoolean() ? cardId1 : cardId2;
+        cardPage.updateCard(key, token, randomCardId, "Updated Task");
+        System.out.println("Card updated: " + randomCardId);
 
-        // cardIds wvxssMXW,pIO5NM4W,njwVJTra,zpGTShiM,dWIIhXi5,3OLHjkkj
-        CardPage cardPage = new CardPage("3OLHjkkj");
-        cardPage.getCardInfo(key, token);
-        // cardPage.deleteCard(key,token);
-        cardPage.updateCard(key,token, "RestTest");
+        cardPage.deleteCard(key, token, cardId1);
+        cardPage.deleteCard(key, token, cardId2);
+        System.out.println("All cards deleted");
+
+        boardPage.deleteBoard(key, token, boardId);
+        System.out.println("Board deleted");
     }
 }

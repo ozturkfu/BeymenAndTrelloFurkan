@@ -6,6 +6,10 @@ import io.restassured.response.Response;
 
 public class ListPage {
 
+    public ListPage() {
+
+    }
+
     private String id;
     private String name;
 
@@ -55,30 +59,25 @@ public class ListPage {
 
         System.out.println("Cards in list " + listId + ": " + response.body().asString());
     }
-}
 
-    /* public CardPage[] listCards(String key, String token, String boardId) {
+    public String createList(String key, String token, String boardId, String listName) {
         String baseUrl = "https://api.trello.com/1";
         Response response = RestAssured
                 .given()
                 .baseUri(baseUrl)
+                .contentType(ContentType.JSON)
                 .queryParam("key", key)
                 .queryParam("token", token)
+                .queryParam("name", listName)
+                .queryParam("idBoard", boardId)
                 .when()
-                .get("/boards/{boardId}/cards", boardId);
+                .post("/lists");
 
         response.then().statusCode(200);
 
-        System.out.println("Cards in board " + boardId + ":");
-        System.out.println(response.body().asString());
-
-        CardPage[] cardPages = response.as(CardPage[].class);
-
-        System.out.println("Lists in board " + boardId + ":");
-        for (CardPage cardPage : cardPages) {
-            System.out.println("Card ID: " + cardPage.getId() + ", Name: " + cardPage.getName());
-        }
-
-        return cardPages;
+        return response.jsonPath().getString("id");
     }
-} */
+}
+
+
+
